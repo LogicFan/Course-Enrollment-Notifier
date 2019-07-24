@@ -8,9 +8,7 @@ import (
 
 func main() {
 	fmt.Println("Sending Post Request!")
-	resp, _ := course.FetchSubjectSchedule("1199", course.Undergraduate, "CS")
-
-	ret, _ := course.ParseResponse(resp)
+	ret, _ := course.FetchSubjectSchedule("1199", course.Undergraduate, "CS")
 
 	for _, x := range ret {
 		println(x.ToString())

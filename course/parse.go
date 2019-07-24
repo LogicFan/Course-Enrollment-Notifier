@@ -7,8 +7,7 @@ import (
 	"strings"
 )
 
-// ParseResponse takes a http.Resonse, return a list of course
-func ParseResponse(resp *http.Response) ([]Course, error) {
+func parseResponse(resp *http.Response) ([]Course, error) {
 	if resp == nil {
 		return nil, errors.New("resp cannot be nil")
 	}
