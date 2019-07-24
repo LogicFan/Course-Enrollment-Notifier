@@ -21,6 +21,6 @@ func (course Course) ToString() string {
 	return course.subject +
 		" " + course.catalog +
 		" " + course.title +
-		" Unit: " + course.units +
-		" " + course.notes
+		" \tUnits: " + course.units +
+		" \tNotes: " + course.notes
 }
