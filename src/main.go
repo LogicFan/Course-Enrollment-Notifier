@@ -1,31 +1,11 @@
 package main
 
-import (
-	"fmt"
-
-	"./course"
-)
+import "./email"
 
 func main() {
-	fmt.Println("Sending Post Request!")
-	ret, _ := course.FetchSubjectSchedule("1199", course.Undergraduate, "CS")
-
-	for _, x := range ret {
-		println(x.ToString())
+	e := email.TestEmail
+	err := e.Send("notifier.uwaterloo@gmail.com", []string{"fanyongda2012@hotmail.com"}, []byte("Subject: Hello world \n Hello world Again"))
+	if err != nil {
+		println(err.Error())
 	}
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// 	return
-	// }
-
-	// courses, err := course.ParseResponse(resp)
-
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// 	return
-	// }
-
-	// for _, c := range courses {
-	// 	println(c.ToString())
-	// }
 }
