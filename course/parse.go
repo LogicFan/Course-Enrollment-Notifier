@@ -3,6 +3,7 @@ package course
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -115,12 +116,72 @@ func (course *Course) parseSection(root Node) (Node, error) {
 	}
 
 	node := root.Children().Next().Children().Children().Children()
-	text := node.Text()
-	println(text)
+	var err error
+
+	for !node.Nil() {
+		section := Section{}
+
+		node, err = section.parseInit(node)
+		if err != nil {
+			node = node.Next()
+			continue
+		}
+
+		node, err = section.parseAttr(node)
+
+		println(section.ToString())
+	}
 
 	return root, nil
 }
 
-func (section *Section) parseInit(root Node) (Node, error) {
-	return root, nil
+func (section Section) parseInit(root Node) (Node, error) {
+	node := root
+
+	for !node.Nil() {
+		text := node.Children().Text()
+		_, err := strconv.ParseInt(text, 10, 64)
+		if err != nil {
+			node = node.Next()
+			continue
+		} else {
+			return node, nil
+		}
+	}
+
+	return root, errors.New("no course html find")
+}
+
+func (section *Section) parseAttr(root Node) (Node, error) {
+	var err error
+	var num int64
+
+	node := root.Children()
+	num, err = strconv.ParseInt(node.Text(), 10, 64)
+	if err != nil {
+		return root, err
+	}
+	section.class = int(num)
+
+	node = node.Next()
+	section.section = node.Text()
+
+	node = node.Next().Next().Next().Next().Next()
+	num, err = strconv.ParseInt(node.Text(), 10, 64)
+	if err != nil {
+		return root, err
+	}
+	section.capacity = int(num)
+
+	node = node.Next()
+	num, err = strconv.ParseInt(node.Text(), 10, 64)
+	if err != nil {
+		return root, err
+	}
+	section.enrollment = int(num)
+
+	node = node.Next().Next().Next().Next().Next()
+	section.instructor = node.Text()
+
+	return root.Next(), nil
 }
