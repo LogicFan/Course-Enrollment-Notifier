@@ -118,6 +118,8 @@ func (course *Course) parseSection(root Node) (Node, error) {
 	node := root.Children().Next().Children().Children().Children()
 	var err error
 
+	course.sections = make(map[string]Section)
+
 	for !node.Nil() {
 		section := Section{}
 
@@ -128,8 +130,11 @@ func (course *Course) parseSection(root Node) (Node, error) {
 		}
 
 		node, err = section.parseAttr(node)
-
-		println(section.ToString())
+		if err != nil {
+			node = node.Next()
+			continue
+		}
+		course.sections[section.GetSection()] = section
 	}
 
 	return root, nil
