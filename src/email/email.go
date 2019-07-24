@@ -1,78 +1,53 @@
 package email
 
 import (
-	"errors"
+	"encoding/json"
+	"io/ioutil"
 	"net/smtp"
-	"time"
+	"os"
 )
 
 // Email an object that can send email
 type Email struct {
-	server string
-	auth   smtp.Auth
+	configure Config
 }
 
-// Content contains information about content
-type Content struct {
-	from    string
-	to      string
-	date    string
-	subject string
-	body    string
+// InitByConfig initialize email by class Config
+func (email *Email) InitByConfig(config Config) {
+	if email != nil {
+		email.configure = config
+	}
 }
 
-const layout = "Mon, 2 Jan 2006 15:04:05 MST"
-
-// Create construct a Content object who is missing from field
-func (content *Content) Create(to string, subject string, body string) error {
-	if content == nil {
-		return errors.New("content should not be nil")
+// InitByFile initialze email by configuration file at path
+func (email *Email) InitByFile(path string) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
 	}
 
-	content.to = to
-	content.date = time.Now().Format(layout)
-	content.subject = subject
-	content.body = body
+	defer file.Close()
 
-	return nil
-}
-
-func (content *Content) toBytes(from string) []byte {
-	if content == nil {
-		return nil
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
 	}
 
-	content.from = from
+	json.Unmarshal(bytes, &email.configure)
 
-	retVal := ""
-	retVal = retVal + "From: " + content.from + "\n"
-	retVal = retVal + "To: " + content.to + "\n"
-	retVal = retVal + "Date: " + content.date + "\n"
-	retVal = retVal + "Subject: " + content.subject + "\n"
-	retVal = retVal + "\n"
-	retVal = retVal + content.body + "\n"
-
-	return []byte(retVal)
-}
-
-var a = smtp.PlainAuth(
-	"",
-	"notifier.uwaterloo@gmail.com",
-	"Logic990316",
-	"smtp.gmail.com",
-)
-
-// TestEmail test purpose only
-var TestEmail = Email{server: "smtp.gmail.com:587", auth: a}
-
-// InitByConfig initialze email by configuration file at path
-func (*Email) InitByConfig(path string) error {
 	return nil
 }
 
 // Send send the email
-func (e *Email) Send(to string, content Content) error {
-	var from = "notifier.uwaterloo@gmail.com"
+func (email *Email) Send(to string, content Content) error {
+	server := email.configure.toServerAddr()
+	auth := email.configure.toAuth()
+	from := email.configure.toEmailAddr()
 
-	return smtp.SendMail(e.server, e.auth, from, []string{to}, content.toBytes(from))
+	return smtp.SendMail(
+		server,
+		auth,
+		from,
+		[]string{to},
+		content.toBytes(from, to))
 }
