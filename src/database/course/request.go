@@ -6,7 +6,7 @@ import (
 )
 
 // FetchCourseSchedule Fetch the CourseSchedule from http://www.adm.uwaterloo.ca
-func FetchCourseSchedule(term string, level string, subject string, catalog string) ([]Course, error) {
+func FetchCourseSchedule(level string, term string, subject string, catalog string) ([]Course, error) {
 	resp, err := http.PostForm(
 		"http://www.adm.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl",
 		url.Values{
@@ -23,7 +23,7 @@ func FetchCourseSchedule(term string, level string, subject string, catalog stri
 }
 
 // FetchSubjectSchedule Fetch the CourseSchedule from http://www.adm.uwaterloo.ca
-func FetchSubjectSchedule(term string, level string, subject string) ([]Course, error) {
+func FetchSubjectSchedule(level string, term string, subject string) ([]Course, error) {
 	resp, err := http.PostForm(
 		"http://www.adm.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl",
 		url.Values{

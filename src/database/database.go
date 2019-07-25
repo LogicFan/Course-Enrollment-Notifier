@@ -82,7 +82,7 @@ func InsertUser(user User) error {
 	return nil
 }
 
-// UpdateSchedule update section informaitons
+// UpdateSchedule update section informations
 func UpdateSchedule() error {
 	var query string
 	query = `SELECT DISTINCT level, term, subject FROM USER_INFO;`
@@ -103,6 +103,10 @@ func UpdateSchedule() error {
 
 	database.Exec("BEGIN;")
 	for _, subj := range subjects {
+		println(subj[0])
+		println(subj[1])
+		println(subj[2])
+
 		courses, err := course.FetchSubjectSchedule(subj[0], subj[1], subj[2])
 		if err != nil {
 			println(err.Error())
@@ -110,6 +114,7 @@ func UpdateSchedule() error {
 		}
 
 		for _, courseObj := range courses {
+			println(courseObj.ToString())
 			insertCourse(subj[0], subj[1], courseObj)
 		}
 	}
