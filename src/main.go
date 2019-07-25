@@ -14,8 +14,8 @@ func main() {
 	err = database.Init("../config/info.db")
 	defer database.Close()
 	if err != nil {
-		return
 		println(err.Error())
+		return
 	}
 
 	// init email
