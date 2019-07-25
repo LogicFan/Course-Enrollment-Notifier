@@ -11,7 +11,7 @@ func main() {
 	var err error
 
 	// init database
-	err = database.Init("../config/info.db")
+	err = database.Init("./config/info.db")
 	defer database.Close()
 	if err != nil {
 		println(err.Error())
@@ -20,7 +20,7 @@ func main() {
 
 	// init email
 	e := email.Email{}
-	err = e.InitByFile("../config/email.config")
+	err = e.InitByFile("./config/email.config")
 	if err != nil {
 		println(err.Error())
 		return
@@ -28,6 +28,6 @@ func main() {
 
 	go loop(e)
 
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":80", nil)
+	http.HandleFunc("/notifier", handler)
+	http.ListenAndServe(":666", nil)
 }
