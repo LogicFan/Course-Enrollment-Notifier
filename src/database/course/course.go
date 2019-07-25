@@ -28,3 +28,23 @@ func (course Course) ToString() string {
 	}
 	return retVal
 }
+
+// GetSubject return subject
+func (course Course) GetSubject() string {
+	return course.subject
+}
+
+// GetCatalog return subject
+func (course Course) GetCatalog() string {
+	return course.catalog
+}
+
+// GetTitle return subject
+func (course Course) GetTitle() string {
+	return course.title
+}
+
+// GetSections return sections
+func (course Course) GetSections() map[string]Section {
+	return course.sections
+}
