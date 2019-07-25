@@ -61,7 +61,7 @@ func Init(path string) error {
 
 // InsertUser insert user into database
 func InsertUser(user User) error {
-	stmt, err := database.Prepare(`INSERT into USER_INFO 
+	stmt, err := database.Prepare(`INSERT INTO USER_INFO 
 			(email, level, term, subject, catalog, section)
 		VALUES
 			(?, ?, ?, ?, ?, ?);`)
@@ -81,10 +81,10 @@ func InsertUser(user User) error {
 	return nil
 }
 
-// UpdateCourses update section informaitons
-func UpdateCourses() error {
+// UpdateSchedule update section informaitons
+func UpdateSchedule() error {
 	var query string
-	query = `select DISTINCT level, term, subject FROM USER_INFO;`
+	query = `SELECT DISTINCT level, term, subject FROM USER_INFO;`
 	rows, err := database.Query(query)
 	if err != nil {
 		return err
@@ -94,8 +94,54 @@ func UpdateCourses() error {
 		var level, term, subject string
 		rows.Scan(&level, &term, &subject)
 
-		courses := course.Fe
+		courses, err := course.FetchSubjectSchedule(term, level, subject)
+		if err != nil {
+			continue
+		}
+
+		for _, courseObj := range courses {
+			insertCourse(term, level, courseObj)
+		}
 	}
 
 	return nil
+}
+
+func insertCourse(term string, level string, courseObj course.Course) {
+	subject := courseObj.GetSubject()
+	catalog := courseObj.GetCatalog()
+	title := courseObj.GetTitle()
+	sections := courseObj.GetSections()
+
+	for _, sectionObj := range sections {
+		class := sectionObj.GetClass()
+		section := sectionObj.GetSection()
+		instructor := sectionObj.GetInstructor()
+		capacity := sectionObj.GetCapacity()
+		enrollment := sectionObj.GetEnrollment()
+
+		stmt, err := database.Prepare(`INSERT INTO SECTION_INFO 
+			(class, level, term, subject, catalog, title, section, instructor, capacity, enrollment)
+		VALUES
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`)
+		if err != nil {
+			continue
+		}
+
+		_, err = stmt.Exec(
+			class,
+			level,
+			term,
+			subject,
+			catalog,
+			title,
+			section,
+			instructor,
+			capacity,
+			enrollment,
+		)
+		if err != nil {
+			continue
+		}
+	}
 }
