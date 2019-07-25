@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"./database"
 	"./email"
@@ -10,8 +11,13 @@ import (
 func main() {
 	var err error
 
+	argv := os.Args
+	if len(argv) != 2 {
+		return
+	}
+
 	// init database
-	err = database.Init("./config/info.db")
+	err = database.Init(argv[1] + "/config/info.db")
 	defer database.Close()
 	if err != nil {
 		println(err.Error())
@@ -20,7 +26,7 @@ func main() {
 
 	// init email
 	e := email.Email{}
-	err = e.InitByFile("./config/email.config")
+	err = e.InitByFile(argv[1] + "/config/email.config")
 	if err != nil {
 		println(err.Error())
 		return

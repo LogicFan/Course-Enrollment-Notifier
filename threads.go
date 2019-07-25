@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"regexp"
 	"strconv"
 	"sync"
 	"time"
@@ -71,20 +72,37 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			Section: r.PostFormValue("section"),
 		}
 
-		println("Receive post request")
-		println(user.Email + ", " +
-			user.Level + ", " +
-			user.Term + ", " +
-			user.Subject + ", " +
-			user.Catalog + ", " +
-			user.Section)
+		// Check if these are valid arguments
+		emailRegex := true
+		levelRegex, _ := regexp.Match("^(grad|under)$", []byte(user.Level))
+		termRegex, _ := regexp.Match("^(1[0-9][0-9][159])$", []byte(user.Term))
+		subjectRegex, _ := regexp.Match("^[A-Z]*$", []byte(user.Subject))
+		catalogRegex, _ := regexp.Match("^[0-9][0-9][0-9][A-Z]*$", []byte(user.Catalog))
+		sectionRegex, _ := regexp.Match("^[A-Z][A-Z][A-Z] [0-9][0-9][0-9]$", []byte(user.Section))
 
-		mutex.Lock()
-		database.InsertUser(user)
-		mutex.Unlock()
+		if emailRegex &&
+			levelRegex &&
+			termRegex &&
+			subjectRegex &&
+			catalogRegex &&
+			sectionRegex {
 
-		w.Write([]byte("Success"))
-	} else {
-		w.Write([]byte("Failure"))
+			println("Receive post request")
+			println(user.Email + ", " +
+				user.Level + ", " +
+				user.Term + ", " +
+				user.Subject + ", " +
+				user.Catalog + ", " +
+				user.Section)
+
+			mutex.Lock()
+			database.InsertUser(user)
+			mutex.Unlock()
+
+			w.Write([]byte("Success"))
+			return
+		}
 	}
+
+	w.Write([]byte("Failure"))
 }
