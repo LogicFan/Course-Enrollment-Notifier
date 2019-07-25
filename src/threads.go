@@ -25,14 +25,14 @@ func loop(e email.Email) {
 		for _, result := range results {
 			to := result.Email
 			title := "Course " + result.Subject +
-				" " + result.Catalog + " Has Spot Now"
+				" " + result.Catalog + " is Available Now"
 			body := "Hi, \n" +
 				"    The course " + result.Subject +
 				" " + result.Catalog +
 				" " + result.Section +
 				" (class no. " + strconv.FormatInt(int64(result.Class), 10) +
 				") with instructor " + result.Instructor +
-				"now has spot."
+				"now has available seat."
 
 			content := email.Content{}
 			content.Create(
