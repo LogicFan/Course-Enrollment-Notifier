@@ -65,17 +65,18 @@ func InsertUser(user User) error {
 			(email, level, term, subject, catalog, section)
 		VALUES
 			(?, ?, ?, ?, ?, ?);`)
+	defer stmt.Close()
 	if err != nil {
 		return err
 	}
 
 	_, err = stmt.Exec(
-		user.email,
-		user.level,
-		user.term,
-		user.subject,
-		user.catalog,
-		user.section,
+		user.Email,
+		user.Level,
+		user.Term,
+		user.Subject,
+		user.Catalog,
+		user.Section,
 	)
 
 	return nil
@@ -86,23 +87,35 @@ func UpdateSchedule() error {
 	var query string
 	query = `SELECT DISTINCT level, term, subject FROM USER_INFO;`
 	rows, err := database.Query(query)
+	defer rows.Close()
 	if err != nil {
 		return err
 	}
+
+	database.Exec("BEGIN;")
 
 	for rows.Next() {
 		var level, term, subject string
 		rows.Scan(&level, &term, &subject)
 
+		println(level)
+		println(term)
+		println(subject)
+		println()
+
 		courses, err := course.FetchSubjectSchedule(term, level, subject)
 		if err != nil {
+			println(err.Error())
 			continue
 		}
 
 		for _, courseObj := range courses {
+			println(courseObj.ToString())
 			insertCourse(term, level, courseObj)
 		}
 	}
+
+	database.Exec("COMMIT;")
 
 	return nil
 }
@@ -124,7 +137,9 @@ func insertCourse(term string, level string, courseObj course.Course) {
 			(class, level, term, subject, catalog, title, section, instructor, capacity, enrollment)
 		VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`)
+		defer stmt.Close()
 		if err != nil {
+			println(err.Error())
 			continue
 		}
 
@@ -141,7 +156,19 @@ func insertCourse(term string, level string, courseObj course.Course) {
 			enrollment,
 		)
 		if err != nil {
+			println(err.Error())
 			continue
 		}
 	}
+}
+
+// ClearSchedule clears the schedule
+func ClearSchedule() {
+	query := "DELETE FROM SECTION_INFO"
+	database.Exec(query)
+}
+
+// Close close the connection
+func Close() {
+	database.Close()
 }
