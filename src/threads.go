@@ -82,5 +82,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		mutex.Lock()
 		database.InsertUser(user)
 		mutex.Unlock()
+
+		w.Write([]byte("Success"))
+	} else {
+		w.Write([]byte("Failure"))
 	}
 }
