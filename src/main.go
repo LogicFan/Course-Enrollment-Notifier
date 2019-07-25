@@ -1,6 +1,9 @@
 package main
 
-import "./database"
+import (
+	"./database"
+	"./email"
+)
 
 func main() {
 	err := database.Init("../config/info.db")
@@ -27,9 +30,12 @@ func main() {
 		Section: "LEC 001",
 	})
 
-	results := database.GetEmailList()
-
-	for _, v := range results {
-		println(v.Email)
+	e := email.Email{}
+	err = e.InitByFile("../config/email.config")
+	if err != nil {
+		println(err.Error())
+		return
 	}
+
+	loop(e)
 }
