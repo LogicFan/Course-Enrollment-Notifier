@@ -87,40 +87,38 @@ func UpdateSchedule() error {
 	var query string
 	query = `SELECT DISTINCT level, term, subject FROM USER_INFO;`
 	rows, err := database.Query(query)
-	defer rows.Close()
 	if err != nil {
 		return err
 	}
 
-	database.Exec("BEGIN;")
+	subjects := make([][3]string, 0, 1)
 
 	for rows.Next() {
 		var level, term, subject string
 		rows.Scan(&level, &term, &subject)
 
-		println(level)
-		println(term)
-		println(subject)
-		println()
+		subjects = append(subjects, [3]string{level, term, subject})
+	}
+	rows.Close()
 
-		courses, err := course.FetchSubjectSchedule(term, level, subject)
+	database.Exec("BEGIN;")
+	for _, subj := range subjects {
+		courses, err := course.FetchSubjectSchedule(subj[0], subj[1], subj[2])
 		if err != nil {
 			println(err.Error())
 			continue
 		}
 
 		for _, courseObj := range courses {
-			println(courseObj.ToString())
-			insertCourse(term, level, courseObj)
+			insertCourse(subj[0], subj[1], courseObj)
 		}
 	}
-
 	database.Exec("COMMIT;")
 
 	return nil
 }
 
-func insertCourse(term string, level string, courseObj course.Course) {
+func insertCourse(level string, term string, courseObj course.Course) {
 	subject := courseObj.GetSubject()
 	catalog := courseObj.GetCatalog()
 	title := courseObj.GetTitle()

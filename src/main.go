@@ -4,6 +4,7 @@ import "./database"
 
 func main() {
 	err := database.Init("../config/info.db")
+	defer database.Close()
 	if err != nil {
 		println(err.Error())
 	}
