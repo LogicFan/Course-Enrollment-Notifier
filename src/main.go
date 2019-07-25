@@ -28,6 +28,7 @@ func main() {
 
 	go loop(e)
 
-	http.HandleFunc("/notifier", handler)
-	http.ListenAndServe(":666", nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/notifier", handler)
+	http.ListenAndServe(":666", mux)
 }
