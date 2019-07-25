@@ -27,7 +27,9 @@ func main() {
 		Section: "LEC 001",
 	})
 
-	database.ClearSchedule()
+	results := database.GetEmailList()
 
-	database.UpdateSchedule()
+	for _, v := range results {
+		println(v.Email)
+	}
 }
