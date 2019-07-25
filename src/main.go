@@ -26,8 +26,8 @@ func main() {
 		return
 	}
 
+	go loop(e)
+
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":80", nil)
-
-	loop(e)
 }
