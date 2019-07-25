@@ -16,6 +16,7 @@ func loop(e email.Email) {
 	for true {
 		t := time.Now()
 		println(t.Format("Mon Jan 2 15:04:05 -0700 MST 2006"))
+		println("Sending email...")
 
 		mutex.Lock()
 		results := database.GetEmailList()
@@ -39,6 +40,10 @@ func loop(e email.Email) {
 				body)
 
 			e.Send(to, content)
+			println("To: " + to)
+			println("Subject: " + title)
+			println("Body: " + body)
+			println("------------------------------")
 		}
 
 		mutex.Lock()
@@ -54,12 +59,28 @@ func loop(e email.Email) {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	r.ParseMultipartForm(32 << 20)
+
 	if r.Method == "POST" {
-		println(r.Form["email"])
-		println(r.Form["level"])
-		println(r.Form["term"])
-		println(r.Form["subject"])
-		println(r.Form["catalog"])
-		println(r.Form["section"])
+		user := database.User{
+			Email:   r.PostFormValue("email"),
+			Level:   r.PostFormValue("level"),
+			Term:    r.PostFormValue("term"),
+			Subject: r.PostFormValue("subject"),
+			Catalog: r.PostFormValue("catalog"),
+			Section: r.PostFormValue("section"),
+		}
+
+		println("Receive post request")
+		println(user.Email + ", " +
+			user.Level + ", " +
+			user.Term + ", " +
+			user.Subject + ", " +
+			user.Catalog + ", " +
+			user.Section)
+
+		mutex.Lock()
+		database.InsertUser(user)
+		mutex.Unlock()
 	}
 }
