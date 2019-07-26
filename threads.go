@@ -54,7 +54,7 @@ func loop(e email.Email) {
 		mutex.Unlock()
 
 		time.Sleep(
-			time.Duration(5*time.Minute) - time.Since(t))
+			time.Duration(30*time.Minute) - time.Since(t))
 	}
 }
 
